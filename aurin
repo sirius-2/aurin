@@ -1,0 +1,58 @@
+#!/bin/bash
+
+c_dir="$(pwd)"
+mirror_url='hub.fastgit.xyz'
+
+handle(){
+    baseurl=$(echo $1 | awk -F '/' '{print $3}')
+    name=$(echo $1 | awk -F '/' '{print $4}' | awk -F '.' '{print $1}')
+
+    if [[ ${baseurl} == 'aur.archlinux.org' ]];then
+        if [[ ! -d ${name} ]];then git clone $1;fi
+        cd ${name}
+        if [[ -f PKGBUILD ]];then
+            sed -i "s/github.com/${mirror_url}/g" PKGBUILD
+            makepkg
+            sudo pacman -U *.pkg.tar.*
+        else
+            echo '[ - ] No PKGBUILD found'
+            cd ${c_dir}
+            exit 1
+        fi
+    else
+        echo '[ - ] No AUR Package found'
+    fi
+}
+
+case $1 in
+    -i | --install)
+        handle $2
+        ;;
+    -m | --mirror)
+        mirror_url=$2
+        handle $3
+        ;;
+    -d | --default)
+        mirror_url='github.com'
+        handle $2
+        ;;
+    -p | --package)
+        handle "https://aur.archlinux.org/${2}.git"
+        ;;
+    -h | --help)
+
+cat<<EOF
+
+aurin [arg]
+
+arg:
+    -i | --install    install through buildin mirror
+    -m | --mirror     custom aur domain eg. aurin -m mirror.xx git_url
+    -d | --default    default github domain
+    -p | --package    use simple package name eg. yay
+    -h | --help       show help
+EOF
+        ;;
+    *)
+        handle $1
+esac
