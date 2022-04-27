@@ -2,6 +2,9 @@
 An easy way to install AUR package with custom Github mirror ability.
 > For Chinese users & Other Countries
 
+## Where to install
+For Users: `~/.local/bin`. For Root: `/usr/local/bin`
+
 ## ArchLinux
 Example:
 ```
