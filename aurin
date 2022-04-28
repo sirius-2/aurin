@@ -4,26 +4,28 @@
 
 c_dir="$(pwd)"
 mirror_url='hub.fastgit.xyz'
+tmp_dir=/tmp
 
 handle(){
     baseurl=$(echo $1 | awk -F '/' '{print $3}')
     name=$(echo $1 | awk -F '/' '{print $4}' | awk -F '.' '{print $1}')
+    workdir=${tmp_dir}/${name}
 
     if [[ ${baseurl} == 'aur.archlinux.org' ]];then
-        if [[ ! -d ${name} ]];then
-            git clone $1
+        if [[ ! -d ${workdir} ]];then
+            git clone $1 $workdir
         fi
-        if [[ "$(ls ${name})" == "" ]];then sudo rm -rf ${name};echo '[ - ] No AUR Package found';exit 1;fi
+        if [[ "$(ls ${workdir})" == "" ]];then sudo rm -rf ${workdir};echo '[ - ] No AUR Package found';exit 1;fi
 
         # depends
-        eval "$(grep -w 'depends=' ${name}/PKGBUILD)"
-        eval "$(grep -w 'makedepends=' ${name}/PKGBUILD)"
+        eval "$(grep -w 'depends=' ${workdir}/PKGBUILD)"
+        eval "$(grep -w 'makedepends=' ${workdir}/PKGBUILD)"
 
         alldepends=("${depends[@]}" "${makedepends[@]}")
         sudo pacman -Sy "${alldepends[@]}"
         #if [[ $? != 0 ]];then exit 1;fi
 
-        cd ${name}
+        cd ${workdir}
         if [[ -f PKGBUILD ]];then
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             makepkg
@@ -34,7 +36,7 @@ handle(){
             cd ${c_dir}
             exit 1
         fi
-        sudo rm -rf ${name}
+        sudo rm -rf ${workdir}
     else
         echo '[ - ] No AUR Package found'
     fi
