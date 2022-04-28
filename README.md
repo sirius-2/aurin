@@ -30,3 +30,6 @@ arg:
     -p | --package    use simple package name eg. yay
     -h | --help       show help
 ```
+
+### Issue
+- [x] Free to submit an issue.
