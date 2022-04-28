@@ -25,9 +25,15 @@ aurin [arg]
 
 arg:
     -i | --install    install through buildin mirror
-    -m | --mirror     custom aur domain eg. aurin -m mirror.xx git_url
+    -m | --mirror     custom aur domain
+                            eg.
+                            aurin -m githubmirror.xx aur_git_url
+                            aurin -m githubmirror.xx raw.xxxxx.xx[optional] aur_git_url
     -d | --default    default github domain
     -p | --package    use simple package name eg. yay
+    -b | --bin        copy this file to PATH
+                            eg. update:
+                            aurin -b u
     -h | --help       show help
 ```
 

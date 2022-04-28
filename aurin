@@ -3,6 +3,8 @@
 # Need to install deps by cat PKGBUILD:depends
 # Need to handle raw content
 
+repo='https://github.com/sirius-2/aurin.git'
+
 c_dir="$(pwd)"
 mirror_url='hub.fastgit.xyz'
 mirror_raw_url='raw.staticdn.net'
@@ -47,6 +49,28 @@ handle(){
     fi
 }
 
+aurinbin(){
+    biinname=$(echo $0 | awk -F '/' '{print $2}')
+    if [[ $USER == 'root' ]];then
+        binpath='/usr/local/bin'
+    else
+        binpath='~/.local/bin'
+        if [[ ! -d ${binpath} ]];then mkdir -p ${binpath};fi
+    fi
+
+    case $1 in
+        u | update)
+            filepath=${tmp_dir}/aurin/aurin
+            git clone ${repo} ${tmp_dir}/aurin
+            ;;
+        *)
+            filepath=$(pwd)/${biinname}
+    esac
+    if [[ -f ${filepath} ]];then sudo cp -f ${filepath} ${binpath}/${biinname};sudo chmod +x ${binpath}/${biinname};fi
+    sudo rm -rf ${tmp_dir}/aurin
+    echo '[ + ] aleady in PATH'
+}
+
 case $1 in
     -i | --install)
         handle $2
@@ -68,6 +92,9 @@ case $1 in
     -p | --package)
         handle "https://aur.archlinux.org/${2}.git"
         ;;
+    -b | --bin)
+        aurinbin
+        ;;
     -h | --help)
 
 cat<<EOF
@@ -82,6 +109,9 @@ arg:
                             aurin -m githubmirror.xx raw.xxxxx.xx[optional] aur_git_url
     -d | --default    default github domain
     -p | --package    use simple package name eg. yay
+    -b | --bin        copy this file to PATH
+                            eg. update:
+                            aurin -b u
     -h | --help       show help
 EOF
         ;;
