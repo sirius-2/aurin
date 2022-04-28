@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# This is an old file
 # Need to install deps by cat PKGBUILD:depends
 # Need to handle raw content
 
@@ -54,7 +55,7 @@ aurinbin(){
     if [[ $USER == 'root' ]];then
         binpath='/usr/local/bin'
     else
-        binpath='~/.local/bin'
+        binpath="$HOME/.local/bin"
         if [[ ! -d ${binpath} ]];then mkdir -p ${binpath};fi
     fi
 
@@ -93,7 +94,13 @@ case $1 in
         handle "https://aur.archlinux.org/${2}.git"
         ;;
     -b | --bin)
-        aurinbin
+        case $1 in
+            u | update)
+                aurinbin u
+                ;;
+            *)
+                aurinbin
+        esac
         ;;
     -h | --help)
 
