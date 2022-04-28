@@ -1,4 +1,5 @@
 # AURIN
+> Archieved because lack of needed technology 
 An easy way to install AUR package with custom Github mirror ability.
 > For Chinese users & Other Countries
 
