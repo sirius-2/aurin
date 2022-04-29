@@ -27,13 +27,23 @@ handle(){
         if [[ -f PKGBUILD ]];then
 
             # depends
-            alldepends=($(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed 's/"//g' | sed "s/'//g" | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g'))
+            var=("$(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/optdepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n")")
+            OLDIFS=$IFS
+            IFS=$'
+'
 
-            for d in "${alldepends[@]}"
+            arr=($var)
+            IFS=$OLDIFS
+            declare -i n=0
+            for i in "${arr[@]}"
             do
-                sudo pacman -S --noconfirm $d
-                if [[ $? != 0 ]];then yay -S $d;fi
+                #echo ${i%:*}
+                arr1[$n]=$(sed 's/ \+//g' <<< ${i%:*})
+                if [[ ${i%:*} == " " ]];then let n--;fi
+                let n++
             done
+            echo ${#arr1[@]} : ${arr1[@]}
+            exit 0
 
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
@@ -51,6 +61,26 @@ handle(){
     fi
 }
 
+parsedeps(){
+    # input PKGBUILD
+    var="$(sed -n '/depends=/,/)/p' $1 | sed 's/makedepends=(//g' | sed 's/optdepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | sed "s/'/\n/g")"
+
+    OLDIFS=$IFS
+    IFS=$'
+'
+
+    arr=($var)
+    IFS=$OLDIFS
+    echo var: $var
+    declare -i n=0
+    for i in "${arr[@]}"
+    do
+        echo ${i%:*}
+        arr1[$n]=${i%:*}
+        let n++
+    done
+    return arr1
+}
 aurinbin(){
     biinname=$(echo $0 | awk -F '/' '{print $2}')
     if [[ $USER == 'root' ]];then
