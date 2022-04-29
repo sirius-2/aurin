@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# This is an old file
 # Need to install deps by cat PKGBUILD:depends
 # Need to handle raw content
 
