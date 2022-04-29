@@ -34,6 +34,7 @@ arg:
     -b | --bin        copy this file to PATH
                             eg. update:
                             aurin -b u
+    -u | --uninstall  uninstall this AUR tool
     -h | --help       show help
 ```
 
