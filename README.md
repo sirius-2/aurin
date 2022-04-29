@@ -1,6 +1,4 @@
 # AURIN
-> Archieved because lack of needed technology    
-
 An easy way to install AUR package with custom Github mirror ability.
 > For Chinese users & Other Countries
 
@@ -41,3 +39,6 @@ arg:
 
 ### Issue
 - [x] Free to submit an issue.
+
+> I don't know why some dependencies are ignored if not using loop to instsall.   
+> Welcome to issue a solution.   

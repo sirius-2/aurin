@@ -28,8 +28,17 @@ handle(){
         if [[ -f PKGBUILD ]];then
 
             # depends
-            alldepends=($(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/depends=(//g' | sed 's/)//g'))
-            sudo pacman -Sy "${alldepends[@]}"
+            alldepends=($(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed 's/"//g' | sed "s/'//g" | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g'))
+            echo "alldepends: ${#alldepends[@]} : ${alldepends[@]}"
+            #eval "sudo pacman -Sy ${alldepends[@]}"
+
+            #sudo pacman -Sy --noconfirm ${alldepends[@]}
+            sudo pacman -Sy
+            for d in "${alldepends[@]}"
+            do
+                yes | sudo pacman -S $d
+                if [[ $? != 0 ]];then yay -S $d;fi
+            done
 
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
