@@ -39,6 +39,3 @@ arg:
 
 ### Issue
 - [x] Free to submit an issue.
-
-> I don't know why some dependencies are ignored if not using loop to instsall.   
-> Welcome to issue a solution.   
