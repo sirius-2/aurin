@@ -47,9 +47,8 @@ handle(){
             for dp in "${alldepends[@]}"
             do
                 sudo pacman -S --noconfirm $dp
-                if [[ $? != 0 ]];then yaylist[k]=$dp;fi
+                if [[ $? != 0 ]];then ${c_dir}/aurin -p $dp;fi
             done
-            yay -S ${yaylist[@]}
 
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
@@ -119,6 +118,13 @@ case $1 in
                 aurinbin
         esac
         ;;
+    -u | --uninstall)
+        if [[ $USER == 'root' ]];then
+            sudo rm -f /usr/local/bin/aurin
+        else
+            sudo rm -f $HOME/.local/bin/aurin
+        fi
+        ;;
     -h | --help)
 
 cat<<EOF
@@ -136,6 +142,7 @@ arg:
     -b | --bin        copy this file to PATH
                             eg. update:
                             aurin -b u
+    -u | --uninstall  uninstall this AUR tool
     -h | --help       show help
 EOF
         ;;
