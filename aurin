@@ -24,16 +24,13 @@ handle(){
         fi
         if [[ "$(ls ${workdir})" == "" ]];then sudo rm -rf ${workdir};echo '[ - ] No AUR Package found';exit 1;fi
 
-        # depends
-        eval "$(grep -w 'depends=' ${workdir}/PKGBUILD)"
-        eval "$(grep -w 'makedepends=' ${workdir}/PKGBUILD)"
-
-        alldepends=("${depends[@]}" "${makedepends[@]}")
-        sudo pacman -Sy "${alldepends[@]}"
-        #if [[ $? != 0 ]];then exit 1;fi
-
         cd ${workdir}
         if [[ -f PKGBUILD ]];then
+
+            # depends
+            alldepends=($(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/depends=(//g' | sed 's/)//g'))
+            sudo pacman -Sy "${alldepends[@]}"
+
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
             makepkg
