@@ -29,14 +29,10 @@ handle(){
 
             # depends
             alldepends=($(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed 's/"//g' | sed "s/'//g" | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g'))
-            echo "alldepends: ${#alldepends[@]} : ${alldepends[@]}"
-            #eval "sudo pacman -Sy ${alldepends[@]}"
 
-            #sudo pacman -Sy --noconfirm ${alldepends[@]}
-            sudo pacman -Sy
             for d in "${alldepends[@]}"
             do
-                yes | sudo pacman -S $d
+                sudo pacman -S --noconfirm $d
                 if [[ $? != 0 ]];then yay -S $d;fi
             done
 
@@ -100,7 +96,7 @@ case $1 in
         handle "https://aur.archlinux.org/${2}.git"
         ;;
     -b | --bin)
-        case $1 in
+        case $2 in
             u | update)
                 aurinbin u
                 ;;
