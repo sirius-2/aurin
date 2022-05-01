@@ -2,6 +2,8 @@
 
 # Need to install deps by cat PKGBUILD:depends
 # Need to handle raw content
+# Need to custom tmp_dir
+# Need to custom install or not optdepends
 
 repo='https://github.com/sirius-2/aurin.git'
 
@@ -27,7 +29,7 @@ handle(){
         if [[ -f PKGBUILD ]];then
 
             # depends
-            var=("$(sed -n '/depends=/,/)/p' PKGBUILD | sed 's/makedepends=(//g' | sed 's/optdepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n")")
+            var=("$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w depends | sed 's/makedepends=(//g' | sed 's/optdepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n")")
             OLDIFS=$IFS
             IFS=$'
 '
