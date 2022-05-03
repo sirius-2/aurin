@@ -34,6 +34,9 @@ arg:
     -b | --bin        copy this file to PATH
                             eg. update:
                             aurin -b u
+    -t | --tmp-dir    custom tmp directory [default /tmp]
+                            eg.
+                            aurin -t ~/.tmp
     -u | --uninstall  uninstall this AUR tool
     -h | --help       show help
 ```
