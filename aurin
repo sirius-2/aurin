@@ -1,5 +1,5 @@
 #!/bin/bash
-#custom_tmp=$HOME/tmp
+#custom_tmp=/tmp
 
 # Need to handle raw content
 # Need to custom install or not optdepends
