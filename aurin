@@ -37,33 +37,15 @@ handle(){
         cd ${workdir}
         if [[ -f PKGBUILD ]];then
 
-            # depends just handled depends
-            depends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w depends | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
-            makedepends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w makedepends | sed 's/makedepends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
-            optdepends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w optdepends | sed 's/optdepends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
-            var="$depends $makedepends $optdepends"
+            eval "$(sed -n '/depends=/,/)/p' PKGBUILD)"
 
-            OLDIFS=$IFS
-            IFS=$'
-'
-
-            arr=($var)
-            IFS=$OLDIFS
-            declare -i n=0
-            for i in "${arr[@]}"
-            do
-                #echo ${i%:*}
-                alldepends[$n]=$(sed 's/ \+//g' <<< ${i%:*})
-                if [[ ${i%:*} == " " ]];then let n--;fi
-                let n++
-            done
+            alldepends=("${depends[@]}" "${makedepends[@]}" "${optdepends[@]}")
             sudo pacman -Sy
-            declare -i k=0
 
             for dp in "${alldepends[@]}"
             do
                 echo "[ + ] depend: $dp" && echo -n '      '
-                sudo pacman -S --noconfirm --needed $dp
+                sudo pacman -S --noconfirm --needed ${dp%:*}
                 if [[ $? != 0 ]];then aurin -p $dp;fi
             done
 
