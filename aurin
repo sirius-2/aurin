@@ -28,8 +28,12 @@ handle(){
         cd ${workdir}
         if [[ -f PKGBUILD ]];then
 
-            # depends
-            var=("$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w depends | sed 's/makedepends=(//g' | sed 's/optdepends=(//g' | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n")")
+            # depends just handled depends
+            depends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w depends | sed 's/depends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
+            makedepends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w makedepends | sed 's/makedepends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
+            optdepends="$(sed -n '/depends=/,/)/p' PKGBUILD | grep -w optdepends | sed 's/optdepends=(//g' | sed 's/)//g' | sed ":a;N;s/\n//g;ta" | sed 's/ \+/ /g' | tr "'" "\n" | tr '"' "\n")"
+            var="$depends $makedepends $optdepends"
+
             OLDIFS=$IFS
             IFS=$'
 '
@@ -46,12 +50,15 @@ handle(){
             done
             sudo pacman -Sy
             declare -i k=0
+
             for dp in "${alldepends[@]}"
             do
-                sudo pacman -S --noconfirm $dp
-                if [[ $? != 0 ]];then ${c_dir}/aurin -p $dp;fi
+                echo "[ + ] depend: $dp" && echo -n '      '
+                sudo pacman -S --noconfirm --needed $dp
+                if [[ $? != 0 ]];then aurin -p $dp;fi
             done
 
+            exit 0
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
             makepkg
