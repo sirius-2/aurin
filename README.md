@@ -19,6 +19,9 @@ aurin -p yay
 # The same way
 ```
 
+### Suggest
+Add archlinuxcn repo to `/etc/pacman.conf` and install `archlinuxcn-keyring` to import `GPG key` becuase it contains extra packages.
+
 ### Help
 ```
 aurin [arg]
