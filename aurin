@@ -36,14 +36,26 @@ handle(){
 
             eval "$(sed -n '/depends=/,/)/p' PKGBUILD)"
 
-            alldepends=("archlinuxcn-keyring" "${depends[@]}" "${makedepends[@]}" "${optdepends[@]}")
-            sudo pacman -Sy
+            # "archlinuxcn-keyring"
+            alldepends=( "${depends[@]}" "${makedepends[@]}" "${optdepends[@]}")
+            #sudo pacman -Sy
 
-            for dp in "${alldepends[@]}"
+            declare -i i=0
+            for d in "${alldepends[@]}"
             do
-                echo "[ + ] depend: $dp" && echo -n '      '
-                sudo pacman -S --noconfirm --needed ${dp%:*}
-                if [[ $? != 0 ]];then aurin -p $dp;fi
+                if [[ $(pacman -Ss $d --quiet | grep -w $d) == '' ]];then
+                    builddepends[$i]=${d%:*}
+                else
+                    pacdepends[$i]=${d%:*}
+                fi
+                let i++
+            done
+
+            sudo pacman -S --noconfirm --needed ${pacdepends[@]}
+            for bdp in "${builddepends[@]}"
+            do
+                echo "[ + ] depend: $bdp"
+                aurin -p $bdp
             done
 
             sed -i "s/github.com/${mirror_url}/g" PKGBUILD
