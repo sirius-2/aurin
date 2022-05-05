@@ -43,10 +43,11 @@ handle(){
             declare -i i=0
             for d in "${alldepends[@]}"
             do
-                if [[ $(pacman -Ss $d --quiet | grep -w $d) == '' ]];then
-                    builddepends[$i]=${d%:*}
+                dp=${d%:*}
+                if [[ $(pacman -Ss $dp --quiet | grep -w $dp) == '' ]];then
+                    builddepends[$i]=$dp
                 else
-                    pacdepends[$i]=${d%:*}
+                    pacdepends[$i]=$dp
                 fi
                 let i++
             done
