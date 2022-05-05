@@ -8,24 +8,25 @@ repo='https://github.com/sirius-2/aurin.git'
 
 c_dir="$(pwd)"
 mirror_url='hub.fastgit.xyz'
+#mirror_url='gitclone.com\/github.com'
 mirror_raw_url='raw.staticdn.net'
 
 tmp_dir=/tmp
-#readtmp_dir=$(sed -n '2p' $0 | awk -F 'custom_tmp=' '{print $2}')
-eval "$(sed -n '2p' $(which aurin) | sed 's/.//')"
+binfile=$($(which aurin) || echo $0)
+eval "$(sed 's/.//' <<< $(sed -n '2p' ${binfile}))"
+
 if [[ ! $custom_tmp == '' ]];then
     tmp_dir=${custom_tmp}
 fi
 
-mkdir -p $tmp_dir
-
 handle(){
     baseurl=$(echo $1 | awk -F '/' '{print $3}')
-    name=$(echo $1 | awk -F '/' '{print $4}' | awk -F '.' '{print $1}')
-
-    workdir=${tmp_dir}/${name}
 
     if [[ ${baseurl} == 'aur.archlinux.org' ]];then
+        mkdir -p $tmp_dir
+        name=$(echo $1 | awk -F '/' '{print $4}' | awk -F '.' '{print $1}')
+        workdir=${tmp_dir}/${name}
+
         if [[ ! -d ${workdir} ]];then
             git clone $1 $workdir
         fi
@@ -59,19 +60,23 @@ handle(){
                 aurin -p $bdp
             done
 
-            sed -i "s/github.com/${mirror_url}/g" PKGBUILD
+            sed -i "s/\/\/github.com/\/\/${mirror_url}/g" PKGBUILD
             sed -i "s/raw.githubusercontent.com/${mirror_raw_url}/g" PKGBUILD
             makepkg
             if [[ $? != 0 ]];then echo '[ - ] Found unhandled issue';exit 1;fi
             sudo pacman -U *.pkg.tar.*
         else
-            echo '[ - ] No PKGBUILD found'
             cd ${c_dir}
+            echo '[ - ] No PKGBUILD found'
             exit 1
         fi
         sudo rm -rf ${workdir}
     else
-        echo '[ - ] No AUR Package found'
+        if [[ ! $(pacman -Ss $1 --quiet | grep -w $1) == '' ]];then
+            sudo pacman -S --noconfirm --needed $1
+        else
+            echo '[ - ] No AUR Package found'
+        fi
     fi
 }
 
@@ -116,7 +121,7 @@ case $1 in
         handle $2
         ;;
     -p | --package)
-        handle "https://aur.archlinux.org/${2}.git"
+        handle $2
         ;;
     -b | --bin)
         case $2 in
