@@ -1,19 +1,24 @@
 #!/bin/bash
-#custom_tmp=/tmp
+#custom_tmp=~/tmp
 
 # Need to handle raw content
 # Need to custom install or not optdepends
+
 
 repo='https://github.com/sirius-2/aurin.git'
 
 c_dir="$(pwd)"
 mirror_url='hub.fastgit.xyz'
-#mirror_url='gitclone.com\/github.com'
+
 mirror_raw_url='raw.staticdn.net'
 
 tmp_dir=/tmp
-binfile=$($(which aurin) || echo $0)
-eval "$(sed 's/.//' <<< $(sed -n '2p' ${binfile}))"
+checkaurin=$(which aurin)
+if [[ $? == 0 ]];then
+    eval "$(sed -n '2p' ${checkaurin} | sed 's/.//')"
+else
+    eval "$(sed -n '2p' $0 | sed 's/.//')"
+fi
 
 if [[ ! $custom_tmp == '' ]];then
     tmp_dir=${custom_tmp}
@@ -135,10 +140,10 @@ case $1 in
     -t | --tmp-dir)
         user_tmp="$(sed 's/[\t ]\+//g' <<< $2)"
         if [[ ! $2 == '' ]];then
-            sed -i "2c#custom_tmp=${user_tmp}" $(which aurin)
-            echo "[ + ] tmp directory: $(sed -n '2p' $(which aurin) | awk -F '=' '{print $2}')"
+            sed -i "2c#custom_tmp=${user_tmp}" ${checkaurin}
+            echo "[ + ] tmp directory: $(sed -n '2p' ${checkaurin} | awk -F '=' '{print $2}')"
         else
-            sed -i "2c#custom_tmp=/tmp" $(which aurin)
+            sed -i "2c#custom_tmp=/tmp" ${checkaurin}
             echo '[ - ] default to /tmp'
         fi
         ;;
