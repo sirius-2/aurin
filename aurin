@@ -24,6 +24,8 @@ if [[ ! $custom_tmp == '' ]];then
     tmp_dir=${custom_tmp}
 fi
 
+declare -i tried=0
+
 handle(){
     baseurl=$(echo $1 | awk -F '/' '{print $3}')
 
@@ -77,10 +79,14 @@ handle(){
         fi
         sudo rm -rf ${workdir}
     else
-        if [[ ! $(pacman -Ss $1 --quiet | grep -w $1) == '' ]];then
+        if [[ $tried == 0 ]] && [[ ! $(pacman -Ss $1 --quiet | grep -w $1) == '' ]];then
             sudo pacman -S --noconfirm --needed $1
+        elif [[ $tried == 0 ]];then
+            handle https://aur.archlinux.org/${1}.git
+            let tried++
         else
             echo '[ - ] No AUR Package found'
+            exit 1
         fi
     fi
 }
